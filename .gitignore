@@ -7,3 +7,5 @@ rhel-sub-vars.yml
 use-*
 .idea
 *.iml
+*.swp
+*.swo

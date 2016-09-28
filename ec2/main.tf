@@ -1,14 +1,31 @@
+# OV: TODO:
+# security group must not be too restrictive: it must allow connection from internal network 172.31.0.0/20
+
+# OV: now replaced by "source .aws_creds, which sets TF_VAR_aws_access_key and TF_VAR_aws_secret_key accordingly:
+# variable "aws_access_key" {default = "AXXXXXXXXXXXXXXXXXXX"}
+# variable "aws_secret_key" {default = "SXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"}
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
-variable "security_group" {default = "ose-demo"}
-variable "keypair" {default = "osekeypair"}
-variable "master_instance_type" {default = "c3.large"}
-variable "node_instance_type" {default = "c3.large"}
-variable "aws_availability_zone" {default = "us-east-1"}
-variable "aws_region" {default = "us-east-1"}
+#variable "security_group" {default = "sg-0433846d"}
+variable "security_group" {default = "default" }
+variable "keypair" {default = "AWS_SSH_Key"}
+#variable "master_instance_type" {default = "c3.large"}
+variable "master_instance_type" { default = "t2.micro" }
+#variable "node_instance_type" {default = "c3.large"}
+variable "node_instance_type" { default = "t2.micro" }
+variable "aws_availability_zone" { default = "eu-central-1a" }
+variable "aws_region" { default = "eu-central-1" }
 variable "ebs_root_block_size" {default = "50"}
-variable "aws_ami" {default = "ami-12663b7a"}
-variable "num_nodes" { default = "2" }
+# fedora 25:
+#variable "aws_ami" {default = "ami-a6a15dc9" }
+# CentOS 7:
+variable "aws_ami" {default = "ami-9bf712f4" }
+variable "num_nodes" { default = "1" }
+
+variable "key_path" {default = "/mnt/nfs/veits/PC/PKI/AWS/AWS_SSH_Key.pem"}
+variable "ssh_user" {default = "centos"}
+variable "installer" {default = "yum"}
+variable "inline_script" {default = "sudo ${var.installer} install -y python && returnvalue=$? && echo ${var.installer} | grep -q dnf && sudo ${var.installer} install -y python2-dnf || exit $returnvalue"}
 
 provider "aws" {
     access_key = "${var.aws_access_key}"
@@ -24,13 +41,23 @@ resource "aws_instance" "ose-master" {
     key_name = "${var.keypair}"
     tags {
         Name = "master"
-        sshUser = "ec2-user"
+        sshUser = "${var.ssh_user}"
         role = "masters"
     }
 	root_block_device = {
 		volume_type = "gp2"
 		volume_size = "${var.ebs_root_block_size}"
 	}
+    provisioner "remote-exec" {
+    inline = [
+        "${var.inline_script}"
+        ]
+    connection {
+        user = "${var.ssh_user}"
+        # key_file = "${var.key_path}"
+        private_key = "${file("${var.key_path}")}"
+    }
+  }
 }
 
 resource "aws_instance" "ose-node" {
@@ -41,12 +68,23 @@ resource "aws_instance" "ose-node" {
     availability_zone = "${var.aws_availability_zone}"
     key_name = "${var.keypair}"
     tags {
-        Name = "${concat("node", count.index)}"
-        sshUser = "ec2-user"
+        #Name = "${concat("node", count.index)}" 
+        Name = "node${count.index}"
+        sshUser = "${var.ssh_user}"
         role = "nodes"
     }
 	root_block_device = {
 		volume_type = "gp2"
 		volume_size = "${var.ebs_root_block_size}"
 	}
+    provisioner "remote-exec" {
+    inline = [
+        "${var.inline_script}"
+        ]
+    connection {
+        user = "${var.ssh_user}"
+        # key_file = "${var.key_path}"
+        private_key = "${file("${var.key_path}")}"
+    }
+  }
 }

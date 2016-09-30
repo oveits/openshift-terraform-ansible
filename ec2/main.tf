@@ -6,13 +6,11 @@
 # variable "aws_secret_key" {default = "SXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"}
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
-#variable "security_group" {default = "sg-0433846d"}
+variable "key_path" {}
 variable "security_group" {default = "default" }
 variable "keypair" {default = "AWS_SSH_Key"}
-#variable "master_instance_type" {default = "c3.large"}
-variable "master_instance_type" { default = "t2.micro" }
-#variable "node_instance_type" {default = "c3.large"}
-variable "node_instance_type" { default = "t2.micro" }
+variable "master_instance_type" {default = "c3.large"}
+variable "node_instance_type" {default = "c3.large"}
 variable "aws_availability_zone" { default = "eu-central-1a" }
 variable "aws_region" { default = "eu-central-1" }
 variable "ebs_root_block_size" {default = "50"}
@@ -20,12 +18,9 @@ variable "ebs_root_block_size" {default = "50"}
 #variable "aws_ami" {default = "ami-a6a15dc9" }
 # CentOS 7:
 variable "aws_ami" {default = "ami-9bf712f4" }
-variable "num_nodes" { default = "1" }
-
-variable "key_path" {default = "/mnt/nfs/veits/PC/PKI/AWS/AWS_SSH_Key.pem"}
 variable "ssh_user" {default = "centos"}
-variable "installer" {default = "yum"}
-variable "inline_script" {default = "sudo ${var.installer} install -y python && returnvalue=$? && echo ${var.installer} | grep -q dnf && sudo ${var.installer} install -y python2-dnf || exit $returnvalue"}
+variable "inline_script" {default = "echo hallo"}
+variable "num_nodes" { default = "2" }
 
 provider "aws" {
     access_key = "${var.aws_access_key}"

@@ -30,6 +30,7 @@ variable "inline_script" {default = "sudo yum install -y python && returnvalue=$
 # for Fedora:
 #variable "inline_script" {default = "sudo dnf install -y python && returnvalue=$? && echo dnf | grep -q dnf && sudo dnf install -y python2-dnf || exit $returnvalue"}
 
+variable "num_masters" { default = "1" }
 variable "num_nodes" { default = "2" }
 variable "aws_vpc_openshift_cidr_block" {default = "10.50.0.0/16"}
 variable "aws_subnet_openshift_master_nodes_cidr_block" {default = "10.50.1.0/24"}
@@ -123,6 +124,7 @@ provider "aws" {
 
 
 resource "aws_instance" "ose-master" {
+    count = "${var.num_masters}"
     ami = "${var.aws_ami_master}"
     instance_type = "${var.master_instance_type}"
     vpc_security_group_ids = [ "${aws_security_group.openshift.id}" ]

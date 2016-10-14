@@ -19,9 +19,26 @@ variable "ebs_root_block_size" {default = "50"}
 #variable "aws_ami_master" {default = "ami-1819e577" }
 #variable "aws_ami_node" {default = "ami-1b19e574" }
 
-# CentOS 7:
-variable "aws_ami_master" {default = "ami-9bf712f4" }
-variable "aws_ami_node" {default = "ami-9bf712f4" }
+variable "images" {
+  type = "map"
+  default = {
+            # CentOS 7:
+            "us-east-1" = "ami-6d1c2007"
+            "us-west-2" = "ami-d2c924b2"
+            "us-west-1" = "ami-af4333cf"
+            "eu-central-1" = "ami-9bf712f4"
+            "eu-west-1" = "ami-7abd0209"
+            "ap-southeast-1" = "ami-f068a193"
+            "ap-southeast-2" = "ami-fedafc9d"
+            "ap-northeast-1" = "ami-eec1c380"
+            "ap-northeast-2" = "ami-c74789a9"
+            "sa-east-1" = "ami-26b93b4a"
+            }
+}
+
+# if you need to use different images for master and nodes, better use the following variables (need to change ami in master and nodes resources below as well):
+#variable "aws_ami_master" {default = "ami-9bf712f4" }
+#variable "aws_ami_node" {default = "ami-9bf712f4" }
 variable "ssh_user" {default = "centos"}
 
 #variable "inline_script" {default = "echo hallo"}
@@ -125,7 +142,8 @@ provider "aws" {
 
 resource "aws_instance" "ose-master" {
     count = "${var.num_masters}"
-    ami = "${var.aws_ami_master}"
+#    ami = "${var.aws_ami_master}"
+    ami = "${lookup(var.images, var.aws_region)}"
     instance_type = "${var.master_instance_type}"
     vpc_security_group_ids = [ "${aws_security_group.openshift.id}" ]
 #    security_groups = [ "${aws_security_group.openshift.id}" ]
@@ -156,7 +174,8 @@ resource "aws_instance" "ose-master" {
 
 resource "aws_instance" "ose-node" {
     count = "${var.num_nodes}"
-    ami = "${var.aws_ami_node}"
+#    ami = "${var.aws_ami_node}"
+    ami = "${lookup(var.images, var.aws_region)}"
     instance_type = "${var.node_instance_type}"
     vpc_security_group_ids = [ "${aws_security_group.openshift.id}" ]
 #    security_groups = [ "${aws_security_group.openshift.id}" ]

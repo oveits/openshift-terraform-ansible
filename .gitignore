@@ -9,3 +9,4 @@ use-*
 *.iml
 *.swp
 *.swo
+ec2/.terraform

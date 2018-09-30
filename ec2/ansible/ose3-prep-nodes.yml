@@ -27,11 +27,14 @@
           - pyOpenSSL
           - python-dbus
           - NetworkManager
+# OV added htpasswd:
+          - httpd-tools
 # OV added:
     - name: Enable NetworkManager (will automatically start on reboot)
       shell: systemctl enable NetworkManager
     - name: Enable and start NetworkManager
       shell: systemctl start NetworkManager
+
     - name: Update all yum packages
       yum: name=* state=latest
     - name: Install Docker

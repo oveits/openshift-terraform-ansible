@@ -20,8 +20,10 @@ variable "ebs_root_block_size" {default = "50"}
 #variable "aws_ami_node" {default = "ami-1b19e574" }
 
 # CentOS 7:
-variable "aws_ami_master" {default = "ami-9bf712f4" }
-variable "aws_ami_node" {default = "ami-9bf712f4" }
+#variable "aws_ami_master" {default = "ami-9bf712f4" }
+#variable "aws_ami_node" {default = "ami-9bf712f4" }
+variable "aws_ami_master" {default = "ami-dd3c0f36" }
+variable "aws_ami_node" {default = "ami-dd3c0f36" }
 variable "ssh_user" {default = "centos"}
 
 #variable "inline_script" {default = "echo hallo"}

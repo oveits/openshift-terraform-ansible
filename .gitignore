@@ -10,3 +10,4 @@ use-*
 *.swp
 *.swo
 ec2/.terraform
+*.retry

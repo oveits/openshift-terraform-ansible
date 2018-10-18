@@ -2,6 +2,9 @@
 - hosts: all
   become: yes
   tasks:
+# OV moved to the beginning:
+    - name: Update all yum packages
+      yum: name=* state=latest
 #    - name: disable all repos by default
 #      shell: subscription-manager repos --disable="*"      
 #    - name: Enable the requisite rhel7 repos
@@ -11,7 +14,7 @@
 #    - name: Remove Network Manager
 #      yum: name=NetworkManager state=absent
     - name: Install pre requisites
-      yum: name={{ item }} state=present
+      package: name={{ item }} state=present
 #      dnf: name={{ item }} state=present
       with_items:
           - wget
@@ -27,21 +30,39 @@
           - pyOpenSSL
           - python-dbus
           - NetworkManager
-# OV added htpasswd:
+# OV added: (as found in oveits/installcentos/2_install-openshift-prerequisites.sh)
+          #- wget
+          #- git
+          #- zile  # OV: not available
+          - nano
+          - net-tools
+          - docker-1.13.1
+          #- bind-utils
+          - bash-completion
+          - kexec-tools
+          - sos
+          - psacct
+          - openssl-devel
+          # htpasswd:
           - httpd-tools
-# OV added:
-    - name: Enable NetworkManager (will automatically start on reboot)
-      shell: systemctl enable NetworkManager
-    - name: Enable and start NetworkManager
-      shell: systemctl start NetworkManager
+          #- NetworkManager
+          - python-cryptography
+          #- python2-pip  # OV: not available
+          - python-devel
+          - python-passlib
+          - java-1.8.0-openjdk-headless
+          - "@Development Tools"
+          - epel-release
 
-    - name: Update all yum packages
-      yum: name=* state=latest
-    - name: Install Docker
-      yum: name=docker state=present
-#      dnf: name=docker state=present
-    - name: Enable insecure registry... since we like insecure things
-      lineinfile: dest=/etc/sysconfig/docker state=present line='OPTIONS=--insecure-registry 172.30.0.0/16' regexp="^#?OPTIONS" 
-    - name: Start docker
-      service: name=docker state=started enabled=yes
+    - name: Disable the EPEL repository globally so that is not accidentally used during later steps of the installation
+      shell: 'sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo'
+
+# OV added:
+    - name: Enable and Start NetworkManager
+      service: name=NetworkManager state=started enabled=yes
+    - name: Enable and Restart docker
+      service: name=docker state=restarted enabled=yes
+
+#    - name: Enable insecure registry... since we like insecure things
+#      lineinfile: dest=/etc/sysconfig/docker state=present line='OPTIONS=--insecure-registry 172.30.0.0/16' regexp="^#?OPTIONS" 
 

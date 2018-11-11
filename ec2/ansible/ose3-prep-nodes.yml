@@ -43,8 +43,10 @@
           - sos
           - psacct
           - openssl-devel
-          # htpasswd:
+          # needed for htpasswd:
           - httpd-tools
+          # needed for htpasswd for hawkular metrics:
+          - python-passlib-1.6.5-2.el7.noarch
           #- NetworkManager
           - python-cryptography
           #- python2-pip  # OV: not available
